@@ -70,7 +70,6 @@ class CategoryController extends Controller
         $model = $this->model->where('id','<>',$categoryId)->where('previous_id',$condition)
                 ->update(['previous_id'=>$categoryId]);
 
-        return $model;
     }
 
     /**
@@ -115,8 +114,10 @@ class CategoryController extends Controller
             $this->mergeDeleteItemGap($id, $model->previous_id);
             $this->setInsertedCategoryReference($id, $request->previous_id);
         }
-
-        $model->update($request->all());
+        $model->name = $request->name;
+        $model->previous_id = $request->previous_id;
+        $model->save();
+        return $model;
     }
 
     /**
@@ -129,12 +130,15 @@ class CategoryController extends Controller
     {
         $model = $this->model->findOrFail($id);
         $this->mergeDeleteItemGap($id, $model->previous_id);
+        $model->delete();
+        return 'okay';
+
 
     }
 
     protected function mergeDeleteItemGap($id, $previousId)
     {
-       return $this->model->where('previous_id',$id)->update([
+       $this->model->where('previous_id',$id)->update([
             'previous_id'=> $previousId
         ]);
     }
